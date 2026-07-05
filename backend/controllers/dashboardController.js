@@ -12,7 +12,7 @@ export async function getDashBoardOverview(req,res) {
             date : { $gte : startOfMonth, $lte : now },
         }).lean();
 
-        const expenses = await expenseModel.find({ // ✅ FIXED
+        const expenses = await expenseModel.find({ 
             userId,
             date : { $gte : startOfMonth, $lte : now },
         }).lean();
@@ -29,8 +29,8 @@ export async function getDashBoardOverview(req,res) {
             ...incomes.map((i) => ({ ...i, type: "income" })),
             ...expenses.map((e) => ({ ...e, type: "expense" })),
         ]
-        .sort((a, b) => new Date(b.date) - new Date(a.date)) // ✅ FIXED
-        .slice(0, 10); // ✅ LIMIT
+        .sort((a, b) => new Date(b.date) - new Date(a.date)) 
+        .slice(0, 10); 
 
         const spendByCategory = {};
         for (const exp of expenses) {

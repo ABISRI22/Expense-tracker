@@ -10,7 +10,7 @@ export async function addExpenses(req, res) {
     const { description, amount, category, date } = req.body;
 
     try {
-        // FIX: amount == null to allow 0 value
+        // amount == null to allow 0 value
         if (!description || amount == null || !category || !date) {
             return res.status(400).json({
                 success: false,
@@ -34,7 +34,7 @@ export async function addExpenses(req, res) {
         });
 
     } catch (error) {
-        console.log("ADD EXPENSE ERROR:", error); // 👈 important for debugging
+        console.log("ADD EXPENSE ERROR:", error); 
 
         res.status(500).json({
             success: false,

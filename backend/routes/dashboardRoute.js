@@ -2,6 +2,7 @@ import express from 'express';
 import { getDashBoardOverview } from '../controllers/dashboardController.js';
 import authMiddleware from '../middleware/auth.js';
 
+//Creates separate router for dashboard
 const dashboardRouter = express.Router();
 
 // Add this test route FIRST (before auth middleware)

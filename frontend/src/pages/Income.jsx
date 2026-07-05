@@ -241,13 +241,11 @@ const Income = () => {
     [outletTransactions],
   ); //filter transactions coming from outletcontext
 
-  const timeFrameTransactions = useMemo(
-    () =>
-      incomeTransactions.filter((t) =>
-        isDateInRange(t.date, timeFrameRange.start, timeFrameRange.end),
-      ),
-    [incomeTransactions, timeFrameRange, isDateInRange],
-  );//filter by time frame
+  const timeFrameTransactions = useMemo(() => {
+  return (incomeTransactions || []).filter(
+    (t) => t.type === "income"
+  );
+}, [incomeTransactions]);//filter by time frame
 
   const filteredTransactions = useMemo(() => {
     if (filter === "all") return timeFrameTransactions;
@@ -321,35 +319,31 @@ const Income = () => {
     fetchOverview(timeFrame ?? "monthly");
   }, [fetchOverview, timeFrame]);
 
-  const totalIncome = useMemo(
-    () =>
-      overview.totalIncome ??
-      filteredTransactions.reduce(
-        (sum, t) => sum + Math.round(Number(t.amount || 0)),
-        0,
-      ),
-    [overview.totalIncome, filteredTransactions],
+ const totalIncome = useMemo(
+  () =>
+    filteredTransactions.reduce(
+      (sum, t) => sum + Math.round(Number(t.amount || 0)),
+      0,
+    ),
+  [filteredTransactions],
+);
+
+const averageIncome = useMemo(() => {
+  if (!filteredTransactions.length) return 0;
+
+  const total = filteredTransactions.reduce(
+    (sum, t) => sum + Number(t.amount || 0),
+    0
   );
 
-  const averageIncome = useMemo(
-    () =>
-      overview.averageIncome
-        ? Math.round(overview.averageIncome)
-        : filteredTransactions.length
-          ? Math.round(
-              filteredTransactions.reduce(
-                (s, t) => s + Math.round(Number(t.amount || 0)),
-                0,
-              ) / filteredTransactions.length,
-            )
-          : 0,
-    [overview.averageIncome, filteredTransactions],
-  );//use backend overview if available
+  return Math.round(total / filteredTransactions.length);
+}, [filteredTransactions]);
+//use backend overview if available
 
-  const transactionsCount = useMemo(
-    () => overview.numberOfTransactions ?? filteredTransactions.length,
-    [overview.numberOfTransactions, filteredTransactions],
-  );
+const transactionsCount = useMemo(
+  () => filteredTransactions.length,
+  [filteredTransactions]
+);
 
   //to add an income
   const handleAddTransaction = useCallback(async () => {
@@ -503,6 +497,8 @@ const Income = () => {
     }
   }, [getAuthHeaders, filteredTransactions]);
 
+ 
+
   //rest is for UI
   return (
     <div className={styles.wrapper}>
@@ -533,6 +529,7 @@ const Income = () => {
           />
         </div>
       </div>
+      
 
       <div className={styles.summaryGrid}>
         <Financialcard

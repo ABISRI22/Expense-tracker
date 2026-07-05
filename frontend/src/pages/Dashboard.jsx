@@ -50,6 +50,7 @@ function toIsoWithClientTime(dateValue) {
 
 console.log("Hi")
 
+
 const Dashboard = () => {
   const { 
     transactions: outletTransactions = [], 
@@ -57,6 +58,8 @@ const Dashboard = () => {
     setTimeFrame = () => {},
     refreshTransactions 
   } = useOutletContext();
+
+  console.log("Outlet Transactions:", outletTransactions);
 
   const [showModal, setShowModal] = useState(false);
   const [gaugeData, setGaugeData] = useState([]);
@@ -77,20 +80,26 @@ const Dashboard = () => {
   const prevTimeFrameRange = useMemo(() => getPreviousTimeFrameRange(timeFrame), [timeFrame]);
 
   // Function to check if a date is within range
-  const isDateInRange = (date, start, end) => {
-    if (!date) return false;
-    const t = new Date(date).toISOString().split("T")[0];
-    const s = new Date(start).toISOString().split("T")[0];
-    const e = new Date(end).toISOString().split("T")[0];
-    return t >= s && t <= e;
-  };
+ const isDateInRange = (date, start, end) => {
+  const transactionDate = new Date(date);
+  const startDate = new Date(start);
+  const endDate = new Date(end);
 
-  const filteredTransactions = useMemo(
-    () => (outletTransactions || []).filter((t) => 
-      t && isDateInRange(t.date, timeFrameRange.start, timeFrameRange.end)
-    ),
-    [outletTransactions, timeFrameRange]
-  );
+  console.log("Transaction Date:", transactionDate);
+  console.log("Start Date:", startDate);
+  console.log("End Date:", endDate);
+
+  startDate.setHours(0, 0, 0, 0);
+  endDate.setHours(23, 59, 59, 999);
+
+  return transactionDate >= startDate && transactionDate <= endDate;
+};
+ 
+
+const filteredTransactions = useMemo(
+  () => outletTransactions || [],
+  [outletTransactions]
+);
 
   const prevFilteredTransactions = useMemo(
     () => (outletTransactions || []).filter((t) => 
@@ -99,19 +108,24 @@ const Dashboard = () => {
     [outletTransactions, prevTimeFrameRange]
   );
 
+  console.log(filteredTransactions);
+
   // Calculate current timeframe data
   const currentTimeFrameData = useMemo(() => {
-    if (timeFrame === "monthly" && overviewMeta.monthlyIncome !== undefined && overviewMeta.monthlyIncome > 0) {
-      return {
-        income: overviewMeta.monthlyIncome || 0,
-        expenses: overviewMeta.monthlyExpense || 0,
-        savings: overviewMeta.savings || 0,
-      };
-    }
-    const data = calculateData(filteredTransactions);
-    data.savings = data.income - data.expenses;
-    return data;
-  }, [filteredTransactions, overviewMeta, timeFrame]);
+  const income = filteredTransactions
+    .filter((t) => t.type === "income")
+    .reduce((sum, t) => sum + Number(t.amount), 0);
+
+  const expenses = filteredTransactions
+    .filter((t) => t.type === "expense")
+    .reduce((sum, t) => sum + Number(t.amount), 0);
+
+  return {
+    income,
+    expenses,
+    savings: income - expenses,
+  };
+}, [filteredTransactions]);
 
   const prevTimeFrameData = useMemo(() => {
     const data = calculateData(prevFilteredTransactions);
@@ -330,6 +344,8 @@ const Dashboard = () => {
       setLoading(false);
     }
   };
+ 
+    
 
   // Loading state
   if (loading && !outletTransactions.length) {
@@ -344,6 +360,11 @@ const Dashboard = () => {
       </div>
     );
   }
+  console.log("Income:", displayIncome);
+console.log("Expenses:", displayExpenses);
+console.log("Savings:", displaySavings);
+console.log("Gauge Data:", gaugeData);
+console.log("Filtered Transactions:", filteredTransactions);
 
   return (
     <div className={dashboardStyles.container}>

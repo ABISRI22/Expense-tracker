@@ -164,12 +164,11 @@ const ExpensePage = () => {
   );
 
   // Filter transactions by time frame
-  const timeFrameTransactions = useMemo(
-    () => expenseTransactions.filter(t => 
-      isDateInRange(t.date, timeFrameRange.start, timeFrameRange.end)
-    ),
-    [expenseTransactions, timeFrameRange, isDateInRange]
+  const timeFrameTransactions = useMemo(() => {
+  return (expenseTransactions || []).filter(
+    (t) => t.type === "expense"
   );
+}, [expenseTransactions]);
 
   // Filter logic — month/year use current calendar by default
   const filteredTransactions = useMemo(() => {
@@ -361,6 +360,8 @@ const ExpensePage = () => {
       }
     }
   };
+
+  console.log("TimeFrame Transactions:", timeFrameTransactions);
 
 
   return (

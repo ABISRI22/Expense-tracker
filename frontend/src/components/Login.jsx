@@ -41,6 +41,24 @@ const Login = ({ onLogin,API_URL = "http://localhost:4000"}) => {
         setError(""); 
 
         try {
+
+
+
+                      // ADMIN LOGIN
+if (
+  email === "admin@gmail.com" &&
+  password === "admin123"
+) {
+  console.log("ADMIN LOGIN");
+
+setIsLoading(false);
+
+navigate("/admin/dashboard");
+
+return;
+}
+
+
             const res= await axios.post(
                 `${API_URL}/api/user/login`,
                 {email,password},
@@ -48,6 +66,11 @@ const Login = ({ onLogin,API_URL = "http://localhost:4000"}) => {
             );
             const data = res.data || {};
             const token = data.token|| null;
+
+
+
+
+
 
             //to derive user profile
               let profile = data.user ?? null;

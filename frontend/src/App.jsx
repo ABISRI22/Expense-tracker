@@ -9,6 +9,7 @@ import axios from 'axios';
 import Income from './pages/Income';
 import Expense from './pages/Expense';
 import Profile from './pages/Profile';
+import AdminDashboard from "./admin/AdminDashboard";
 
  
 const API_URL = "http://localhost:4000";
@@ -201,6 +202,11 @@ const App = () => {
     
     <Route path="/login" element={<Login onLogin={handleLogin}/>}/>
      <Route path="/signup" element={<Signup onSignup={handleSignup}/>}/>
+
+     <Route
+  path="/admin/dashboard"
+  element={<AdminDashboard />}
+/>
 
      <Route element={<ProctectedRoute user={user}>
       <Layout user={user} 
